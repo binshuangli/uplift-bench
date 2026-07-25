@@ -1,0 +1,4 @@
+name: hillstrom
+loader_kwargs:
+  outcome: visit          # "visit" | "conversion" | "spend"
+  treatment_arm: any      # "any" | "mens" | "womens"

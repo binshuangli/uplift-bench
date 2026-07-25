@@ -1,0 +1,25 @@
+defaults:
+  - _self_
+  - dataset: synthetic
+  - model: t_learner
+
+seed: 42
+n_folds: 2
+n_seeds: 1
+smoke: true
+
+results_dir: results/
+data_dir: data/
+
+tuning:
+  enabled: true
+  objective: qini
+  n_samples: 3
+  inner_folds: 2
+
+metrics:
+  budget_k: 0.3
+
+hydra:
+  job:
+    chdir: false
