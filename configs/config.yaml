@@ -1,0 +1,25 @@
+defaults:
+  - _self_
+  - dataset: synthetic
+  - model: t_learner
+
+seed: 42
+n_folds: 5
+n_seeds: 5
+smoke: false
+
+results_dir: results/
+data_dir: data/
+
+tuning:
+  enabled: true
+  objective: qini        # inner-loop tuning objective (validation Qini)
+  n_samples: 20          # random-search budget per (dataset,model,seed,fold)
+  inner_folds: 3         # inner CV folds for tuning
+
+metrics:
+  budget_k: 0.3          # budget fraction for uplift@k / policy value@k
+
+hydra:
+  job:
+    chdir: false
