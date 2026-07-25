@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Deterministic path: the exact pinned environment used for the paper, installed the
+  # way README/`make install-frozen` tells reviewers to install it. Pinned, so upstream
+  # releases cannot silently change what CI verifies.
+  frozen:
+    name: frozen env (py3.12, paper environment)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Upgrade installer toolchain
+        run: python -m pip install --upgrade pip setuptools wheel
+      - name: Install pinned environment
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install -e . --no-deps
+      - name: Lint (ruff, pinned version)
+        run: python -m ruff check src/ tests/ scripts/
+      - name: Public leaderboard matches the committed parquets
+        run: python scripts/check_results_md.py
+      - name: Tests (non-network)
+        run: python -m pytest tests/ -q -m "not network"
+
+  # Range check: the loose, upper-bounded declaration in pyproject on the lower bound of
+  # the supported range. Upstream resolution can drift here, so this job is informational
+  # and must not gate the repo's status.
+  loose:
+    name: loose deps (py3.11, declared range)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Upgrade installer toolchain
+        run: python -m pip install --upgrade pip setuptools wheel
+      - name: Install with dev extras
+        run: python -m pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: python -m ruff check src/ tests/ scripts/
+      - name: Tests (non-network)
+        run: python -m pytest tests/ -q -m "not network"

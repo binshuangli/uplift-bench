@@ -1,0 +1,6 @@
+name: revenue_synthetic
+loader_kwargs:
+  n: 4000
+  n_features: 10
+  treatment_fraction: 0.5
+  sigma: 1.0

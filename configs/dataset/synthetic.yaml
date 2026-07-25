@@ -1,0 +1,8 @@
+name: synthetic
+loader_kwargs:
+  n: 2000
+  n_features: 8
+  treatment_fraction: 0.5
+  binary_outcome: true
+  has_ground_truth: true
+  known_propensity: true
