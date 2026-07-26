@@ -1,0 +1,4 @@
+name: jobs
+loader_name: jobs         # registry key; name above is used for output filenames
+loader_kwargs:
+  split_idx: 0            # which of the 10 Jobs splits (0..9)
