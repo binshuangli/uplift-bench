@@ -1,0 +1,86 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# data & results (large, not version-controlled)
+# ignore all cached datasets but keep the directory tracked
+data/*
+!data/.gitkeep
+results/*
+!results/.gitkeep
+# canonical benchmark result parquets are committed (the paper's "regenerate from
+# the committed result parquets" claim depends on them); figures/tables/findings
+# are derived and regenerate via `make analyze`
+!results/*.parquet
+
+# Hydra outputs
+outputs/
+multirun/
+
+# notebooks checkpoints
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/main.pdf
+
+# XGBoost robustness run — canonical result parquets ARE committed (the paper's
+# artifact claims regenerate from them); only logs/derived outputs are ignored
+results_xgb/*
+!results_xgb/*.parquet
+results_xgb_run.log
+
+# M1 extension (revenue + IHDP 10-29) and all-100 IHDP validation runs — parquets committed
+results_m1ext/*
+!results_m1ext/*.parquet
+results_m1ext_run.log
+results_ihdpval/*
+!results_ihdpval/*.parquet
+results_ihdpval_run.log
+
+# Fixed-hyperparameter F1 audit (tuning off) — parquets committed so the appendix
+# sensitivity regenerates from a clean clone via `make analyze`
+results_notune/*
+!results_notune/*.parquet
+results_notune_run.log
+
+# KDD (acmart) build artifacts — sources are tracked, build output is not
+paper_kdd/main.aux
+paper_kdd/main.log
+paper_kdd/main.bbl
+paper_kdd/main.blg
+paper_kdd/main.out
+paper_kdd/main.pdf
+paper_kdd/_verify.*
+paper_kdd/*.aux
+paper_kdd/main_preview.pdf
+paper_kdd/main_preview.*
+
+# user-made upload archives (re-zip paper_kdd/ after regeneration)
+paper_kdd.zip
+*.zip
+
+# R4 reviewer-analysis runs (prediction stores are large; regenerate via run_bench)
+results_r4pred/
+results_r4pred_run.log
+results_acic/
+results_acic_run.log
+
+# smoke-run output (never the canonical results/)
+results_smoke/
+
+# R9 DR larger-B scratch
+results_drB50/

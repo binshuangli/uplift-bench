@@ -1,0 +1,29 @@
+diff --git a/causalml/metrics/visualize.py b/causalml/metrics/visualize.py
+index 8c1e0fb..0987921 100644
+--- a/causalml/metrics/visualize.py
++++ b/causalml/metrics/visualize.py
+@@ -1,6 +1,7 @@
+ from typing import Optional
+ from matplotlib import pyplot as plt
+ import logging
++import warnings
+ import numpy as np
+ import pandas as pd
+ import seaborn as sns
+@@ -284,6 +285,16 @@ def get_qini(
+ 
+     df = df.copy()
+ 
++    if treatment_effect_col not in df.columns and not df[outcome_col].isin([0, 1]).all():
++        warnings.warn(
++            f"'{outcome_col}' is not binary. The Qini curve is defined for binary "
++            "response (Radcliffe 2007); on continuous outcomes its cumulative-sum gain "
++            "can be dominated by a few large-magnitude observations, and model rankings "
++            "may not reflect treatment-effect accuracy. Consider AUUC (get_cumgain / "
++            "auuc_score) for continuous outcomes.",
++            UserWarning,
++        )
++
+     model_names = [
+         x
+         for x in df.columns
