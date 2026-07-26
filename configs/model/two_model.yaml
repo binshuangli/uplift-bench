@@ -1,0 +1,2 @@
+name: two_model
+base_learner: lightgbm
