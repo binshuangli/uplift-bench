@@ -1,0 +1,2 @@
+name: uplift_rf_chi
+base_learner: lightgbm

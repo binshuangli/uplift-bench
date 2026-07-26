@@ -1,0 +1,24 @@
+{
+  "title": "UpliftBench: Revealing Outcome-Regime and Objective Mismatch in Uplift Evaluation",
+  "description": "Code, configs, data loaders, and results for the UpliftBench paper. Evaluates 12 uplift estimators on 25 datasets spanning synthetic, semi-synthetic (IHDP, Jobs), and real-world marketing RCT settings (Hillstrom, Lenta, X5, MegaFon). Outer-test-isolated protocol with nested CV tuning. Released under MIT license.",
+  "creators": [
+    {
+      "name": "Li, Binshuang",
+      "affiliation": "Independent Researcher",
+      "orcid": "0000-0002-3643-747X"
+    }
+  ],
+  "keywords": [
+    "uplift modelling",
+    "causal inference",
+    "heterogeneous treatment effects",
+    "benchmark",
+    "meta-learners",
+    "marketing analytics",
+    "CATE estimation"
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "access_right": "open",
+  "version": "1.4.0"
+}

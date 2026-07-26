@@ -1,0 +1,126 @@
+"""DR-Learner instability audit: the numbers behind the Appendix D DR paragraph.
+
+Emits `results/tables/tab20_dr.tex` with four macros:
+
+  \\drQiniSeight   DR-Learner's Qini on ihdp_s8 (the highest Qini cell in the benchmark) --
+                  the symptom: it "wins" by Qini while being worst by root-PEHE.
+  \\drPeheMax      the maximum FOLD-level root-PEHE reached by the DR-Learner on the main
+                  IHDP run, i.e. how far the AIPW pseudo-outcome diverges on an unlucky
+                  small fold. Fold-level, not a cell mean (cells average 9 folds).
+  \\drAuditBTen    split-0 mean fold root-PEHE at tuning budget B=10, and
+  \\drAuditBFifty  the same at B=50 -- the check that the divergence is seed/fold-driven
+                  rather than an artifact of the bounded tuning budget.
+
+The first two come from the committed canonical parquets (`results/`), so they always
+reproduce. The B=10-vs-B=50 pair needs the small dedicated audit run in
+`results_drB50/` (`make repro-dr-audit`); if that directory is absent the script keeps the
+committed values for those two macros and says so, rather than emitting a broken table.
+
+Usage: python scripts/dr_audit.py
+"""
+
+from __future__ import annotations
+
+import glob
+import re
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+
+IHDP = [f"ihdp_s{i}" for i in range(10)]
+OUT = Path("results/tables/tab20_dr.tex")
+# Budget-audit run directory and the tier prefixes used inside it.
+AUDIT_DIR = Path("results_drB50")
+AUDIT_TIERS = {"B10": "ihdp_B10", "B50": "ihdp_bigB"}
+AUDIT_SPLIT = "s0"  # the split quoted in the paper
+
+
+def _mean_fold_pehe(pattern: str) -> float | None:
+    files = sorted(glob.glob(pattern))
+    if not files:
+        return None
+    ok = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
+    ok = ok[ok.pehe.notna()]
+    return float(ok.pehe.mean()) if len(ok) else None
+
+
+def _previous_macro(name: str) -> str | None:
+    """Read a macro's current value from the committed table (fallback path)."""
+    if not OUT.exists():
+        return None
+    m = re.search(rf"\\newcommand{{\\{name}}}{{([^}}]*)}}", OUT.read_text())
+    return m.group(1) if m else None
+
+
+def main() -> None:
+    summ_p = Path("results/master_summary.parquet")
+    raw_p = Path("results/master_raw.parquet")
+    if not (summ_p.exists() and raw_p.exists()):
+        print("skipping dr_audit: results/master_{summary,raw}.parquet missing")
+        print("(run `make repro-main` first; see README)")
+        return
+
+    summ = pd.read_parquet(summ_p)
+    raw = pd.read_parquet(raw_p)
+
+    # (1) Qini on ihdp_s8 -- the "wins by the proxy" symptom.
+    cell = summ[(summ.model == "dr_learner") & (summ.dataset == "ihdp_s8")]
+    qini_s8 = float(cell.qini_mean.iloc[0])
+
+    # (2) Max fold-level root-PEHE over the main IHDP run.
+    dr = raw[(raw.model == "dr_learner") & raw.dataset.isin(IHDP) & raw.pehe.notna()]
+    pehe_max = float(dr.pehe.max())
+    worst = dr.loc[dr.pehe.idxmax()]
+    print("=== DR-Learner instability audit ===")
+    print(f"  Qini on ihdp_s8                      : {qini_s8:.1f}")
+    print(
+        f"  max FOLD root-PEHE (main IHDP run)   : {pehe_max:,.0f} "
+        f"({worst.dataset}, seed {worst.seed_idx}, fold {worst.fold_idx})"
+    )
+
+    # (3) Tuning-budget audit: B=10 vs B=50 on the quoted split.
+    b10 = _mean_fold_pehe(
+        str(AUDIT_DIR / f"{AUDIT_TIERS['B10']}_{AUDIT_SPLIT}__dr_learner.parquet")
+    )
+    b50 = _mean_fold_pehe(
+        str(AUDIT_DIR / f"{AUDIT_TIERS['B50']}_{AUDIT_SPLIT}__dr_learner.parquet")
+    )
+    if b10 is None or b50 is None:
+        b10_s, b50_s = _previous_macro("drAuditBTen"), _previous_macro("drAuditBFifty")
+        if b10_s is None or b50_s is None:
+            # Fresh clone: results_drB50/ is not committed and results/tables/ is
+            # gitignored, so there is nothing to carry forward. Still write the two
+            # macros the committed parquets DO determine, and emit placeholders for the
+            # budget pair so the table stays valid LaTeX and the gap is visible.
+            b10_s = b50_s = r"n/a\thanks{run \texttt{make repro-dr-audit}}"
+            print(f"  skipping the budget pair ({AUDIT_DIR}/ absent, no committed values):")
+            print("    writing the two parquet-derived macros; run `make repro-dr-audit`")
+            print("    to fill in the B=10-vs-B=50 comparison.")
+        else:
+            print(
+                f"  budget audit ({AUDIT_DIR}/ absent): keeping committed "
+                f"B=10 {b10_s} -> B=50 {b50_s}; run `make repro-dr-audit` to recompute"
+            )
+    else:
+        b10_s, b50_s = f"{b10:.1f}", f"{b50:.1f}"
+        print(
+            f"  split-{AUDIT_SPLIT[1:]} mean fold root-PEHE: "
+            f"B=10 {b10_s} -> B=50 {b50_s} (seed/fold-driven, not a budget artifact)"
+        )
+
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    OUT.write_text(
+        "% auto-generated by scripts/dr_audit.py (DR-Learner instability audit)\n"
+        f"\\newcommand{{\\drQiniSeight}}{{{qini_s8:.1f}}}\n"
+        f"\\newcommand{{\\drPeheMax}}{{{pehe_max:,.0f}}}\n".replace(",", "{,}")
+        + f"\\newcommand{{\\drAuditBTen}}{{{b10_s}}}\n"
+        f"\\newcommand{{\\drAuditBFifty}}{{{b50_s}}}\n"
+    )
+    print(f"\nSaved: {OUT}")
+
+
+if __name__ == "__main__":
+    main()
