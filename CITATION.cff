@@ -1,0 +1,48 @@
+cff-version: 1.2.0
+message: "If you use this benchmark, please cite it as below."
+title: "UpliftBench: Revealing Outcome-Regime and Objective Mismatch in Uplift Evaluation"
+authors:
+  - family-names: "Li"
+    given-names: "Binshuang"
+    orcid: "https://orcid.org/0000-0002-3643-747X"
+version: "1.4.3"
+date-released: "2026-07-24"
+url: "https://github.com/binshuangli/uplift-bench"
+repository-code: "https://github.com/binshuangli/uplift-bench"
+license: MIT
+keywords:
+  - uplift modeling
+  - heterogeneous treatment effects
+  - causal machine learning
+  - evaluation metrics
+  - benchmark design
+  - model selection
+  - policy evaluation
+  - Qini coefficient
+abstract: >
+  UpliftBench is an outer-test-isolated, multi-objective benchmark for uplift modeling
+  (conditional-average-treatment-effect estimation). It evaluates 12 estimators
+  across seven dataset families (synthetic, IHDP x10, Jobs x10, and four marketing
+  RCTs), with ACIC 2016 as an independent boundary-case validation family, scoring
+  each dataset by the metric that is actually knowable (root-PEHE or policy risk
+  where treatment effects are known; the Qini proxy only on marketing RCTs).
+  Findings: on the standard continuous benchmark (IHDP, the primary continuous
+  panel), cumulative-gain Qini shows no detectable alignment with effect accuracy
+  across all 100 realizations (mean rank correlation +0.00, 95% CI [-0.10, +0.10])
+  while AUUC is more aligned (paired gap +0.56 [+0.45, +0.66]); the failure is not
+  a tail effect and appears on one of three evaluated continuous families (absent
+  on ACIC 2016 and on the heavier-tailed Revenue-Synthetic family, where the gap
+  reverses); on Jobs, ranking metrics are structurally insufficient for
+  sign-threshold policies, and in a within-sample split-rotation analysis direct
+  policy-risk selection yields lower benchmark regret than random while the Qini,
+  AUUC, and uplift-at-k selectors do not. Both findings are bounded: the first is
+  not observed on the mild-tailed ACIC 2016 family, and the second vanishes under
+  a budgeted-value objective where rank suffices.
+preferred-citation:
+  type: article
+  title: "UpliftBench: Revealing Outcome-Regime and Objective Mismatch in Uplift Evaluation"
+  authors:
+    - family-names: "Li"
+      given-names: "Binshuang"
+  year: 2026
+  notes: "Under review."

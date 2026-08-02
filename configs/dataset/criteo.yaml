@@ -1,0 +1,5 @@
+name: criteo
+loader_name: criteo       # registry key; name above is used for output filenames
+loader_kwargs:
+  subsample_tier: "1M"    # "1M" | "5M" | "full"
+  outcome: visit          # "visit" | "conversion"

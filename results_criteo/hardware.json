@@ -1,0 +1,9 @@
+{
+  "platform": "macOS-26.5.2-arm64-arm-64bit",
+  "machine": "arm64",
+  "processor": "arm",
+  "python_version": "3.12.13",
+  "cpu_count": 8,
+  "ram_gb": null,
+  "timestamp": "2026-07-27T03:51:36.155626+00:00"
+}
